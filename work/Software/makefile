@@ -1,5 +1,5 @@
-all: DB-Server.o
+all: CU-Server.o
 
-DB-Server.o: TaPFX-DB_Server.c UDPServer.c ledString.c ws2811/ws2811.c ws2811/dma.c ws2811/rpihw.c ws2811/mailbox.c ws2811/pwm.c
-	gcc TaPFX-DB_Server.c UDPServer.c ledString.c  ws2811/ws2811.c ws2811/dma.c ws2811/rpihw.c ws2811/mailbox.c ws2811/pwm.c -lpthread -o DB-Server
+CU-Server.o: TaPFX-CU_Server.c UDPServer.c PWM_TLC59711.c CU-AnalogSet.c
+	gcc TaPFX-CU_Server.c UDPServer.c PWM_TLC59711.c CU-AnalogSet.c -o DB-Server
 	
