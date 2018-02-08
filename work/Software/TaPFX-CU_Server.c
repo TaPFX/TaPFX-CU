@@ -59,21 +59,21 @@ main(int argc, char *argv[]){
 		}
 		
 		switch (Mode) {
-		case 'A':
+		case A:
 			setAnalog(Channel, DutyCycle);
 			printf("Case A is selected\n");	
 			break;
-		case 'D':
+		case D:
 			printf("Case D is selected\n");	
 			
 			break;		
-		case 'HK':
+		case HK:
 			printf("Case HK is selected\n");
 			break;
-		case 'HJ':
+		case HJ:
 			printf("Case HK is selected\n");
 			break;
-		case 'exit':
+		case exit:
 			printf("Case HK is selected\n");
 			break;
 		default: /* '?' */
@@ -97,7 +97,7 @@ signed char parseCommand(char command[BUFSIZE]){
 	char *splitCommand;
 	
 	char bufMode = 0;
-	char* bufCommand = 0;
+	char bufCommand = 0;
 	char bufChannel = 0;
 	char bufDutyCycle = 0;
 
@@ -110,20 +110,61 @@ signed char parseCommand(char command[BUFSIZE]){
 	if(strcmp(splitCommand, "TaPFX-CU") != 0)
 		return -1;
 	
-/*	
 	splitCommand=strtok(NULL,";");
-	if(strcmp(splitCommand, "A") == 0)
-		bufMode = 1;								// A Analog Mode Mode 1
-	else if(strcmp(splitCommand, "D") == 0)
-		bufMode = 2;								// D Digital Mode Mode 2
+	
+	if(strcmp(splitCommand, "A") == 0) 				// A Analog Mode Mode 1
+		bufMode = A;
+		// Channel select
+		splitCommand=strtok(NULL,";");
+		if(splitCommand == NULL)
+			return -1;
+		bufChannel = atoi(splitCommand);
+		if(bufChannel > 1 && bufChannel < 4)
+			return -1;
+		
+		// DC Value select
+		splitCommand=strtok(NULL,";");
+		if(splitCommand == NULL)
+			return -1;
+		bufDutyCycle = atoi(splitCommand);
+		if(bufDutyCycle >= 0 && bufDutyCycle <= 100)
+			return -1;
+		
+		Channel = bufChannel;
+		DutyCycle = bufDutyCycle;								
+	
+	else if(strcmp(splitCommand, "D") == 0)	
+		bufMode = D;								// D Digital Mode Mode 2
+			if(strcmp(splitCommand, "nothing") == 0)
+				Command = splitCommand
+			else
+				return -1;
+			break;
+	
 	else if(strcmp(splitCommand, "HK") == 0) 
-		bufMode = 3; 								// HK - Hikikomori Mode 3
+		bufMode = HK;								// HK - Hikikomori Mode 3
+		if(	strcmp(splitCommand, "down") == 0 || \
+			strcmp(splitCommand, "up")== 0)
+			Command = splitCommand
+		else 
+			return -1;
+	
 	else if(strcmp(splitCommand, "HJ") == 0)
-		bufMode = 4;								// HJ - Hexenjagt Mode 3
+		bufMode = HJ;								// HJ - Hexenjagt Mode 3
+		if(	strcmp(splitCommand, "MagSideOFF") == 0 || \
+			strcmp(splitCommand, "MagMidOFF") == 0 || \
+			strcmp(splitCommand, "MagON") == 0)
+			Command = splitCommand
+		else 
+			return -1;
+	
+	else if(strcmp(splitCommand, "exit") == 0)
+		bufMode = exit;							// HJ - Hexenjagt Mode 3
+	
 	else 
 		return -1;
-*/
 
+/*
 	splitCommand=strtok(NULL,";");
 	switch (bufMode) {
 		case 'A' :								// A Analog Mode Mode 1
@@ -183,7 +224,8 @@ signed char parseCommand(char command[BUFSIZE]){
 			bufMode = 'exit';
 			return -1;
 			break;
-	
+*/
+			
 	Mode = bufMode;
 	
 	return 0;
