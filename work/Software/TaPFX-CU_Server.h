@@ -1,5 +1,5 @@
-#ifndef _TAPWOLFSERVER_H_
-#define _TAPWOLFSERVER_H_
+#ifndef _TAPCONTROLLSERVER_H_
+#define _TAPCONTROLLSERVER_H_
 
 #include <stdio.h>
 #include <string.h>
