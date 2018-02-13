@@ -14,8 +14,7 @@
 char invert;
 
 signed char aInit();
-signed char setAnalog(int magChan, char dutyCycle);
-
+signed char setAnalog(char aChan, char dutyCycle);
 #endif
 
 /*Magnet Channels are include the following PWM Channels

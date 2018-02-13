@@ -1,11 +1,10 @@
 #include <unistd.h> 
 #include "TaPFX-CU_Server.h"
 
-
 extern char *optarg;
 
-main(int argc, char *argv[]){
-	int i;
+int main(int argc, char *argv[]){
+	int i, run;
 	int opt;
 	int port = DEFAULTPORT;
 	char recvmsg[BUFSIZE];
@@ -44,10 +43,12 @@ main(int argc, char *argv[]){
 		printf("ERROR while init analog Channel\n");
 		return -1;}
 
+	digitalWrite(35,1);
 
 	printf("Start CU-Server\n");
+	run = 1;
 
-	while(1){
+	while(run){
 		bzero(recvmsg, BUFSIZE);
 		printf("Wait for command\n");
 		waitForClient(recvmsg);
@@ -65,7 +66,6 @@ main(int argc, char *argv[]){
 			break;
 		case D:
 			printf("Case D is selected\n");	
-			
 			break;		
 		case HK:
 			printf("Case HK is selected\n");
@@ -73,21 +73,19 @@ main(int argc, char *argv[]){
 		case HJ:
 			printf("Case HK is selected\n");
 			break;
-		case exit:
-			printf("Case HK is selected\n");
+		case CUend:
+			printf("Case end is selected\n");
+			run = 0;
 			break;
+		
 		default: /* '?' */
 			printf("Usage: %s [-p portnumber] [-d] debug mode [-i] invert pwm output [-h] show Help\n", argv[0]);
 			return -2;
     }
-		
-		if(strcmp(MagnetMode, "exit") == 0){
-			printf("Exit CU-Server\n");
-			goto endmainloop;
+		printf("\n");
 		}
-	}
 	
-	endmainloop:
+	digitalWrite(35,0);
 	return 0;
 }
 
@@ -109,122 +107,59 @@ signed char parseCommand(char command[BUFSIZE]){
 	splitCommand=strtok(copycommand,";");
 	if(strcmp(splitCommand, "TaPFX-CU") != 0)
 		return -1;
-	
+	printf("TapCU\n");
 	splitCommand=strtok(NULL,";");
 	
-	if(strcmp(splitCommand, "A") == 0) 				// A Analog Mode Mode 1
+	if(strcmp(splitCommand, "A") == 0){ 				// A Analog Mode Mode 1
 		bufMode = A;
 		// Channel select
 		splitCommand=strtok(NULL,";");
 		if(splitCommand == NULL)
 			return -1;
 		bufChannel = atoi(splitCommand);
-		if(bufChannel > 1 && bufChannel < 4)
+		if(bufChannel < 1 && bufChannel > 4)
 			return -1;
-		
 		// DC Value select
 		splitCommand=strtok(NULL,";");
 		if(splitCommand == NULL)
 			return -1;
 		bufDutyCycle = atoi(splitCommand);
-		if(bufDutyCycle >= 0 && bufDutyCycle <= 100)
+		if(bufDutyCycle < 0 && bufDutyCycle > 100)
 			return -1;
-		
+		printf("DC Set\n");;
 		Channel = bufChannel;
 		DutyCycle = bufDutyCycle;								
 	
-	else if(strcmp(splitCommand, "D") == 0)	
+	}else if(strcmp(splitCommand, "D") == 0){
 		bufMode = D;								// D Digital Mode Mode 2
-			if(strcmp(splitCommand, "nothing") == 0)
-				Command = splitCommand
-			else
-				return -1;
-			break;
+		if(strcmp(splitCommand, "nothing") == 0)
+			Command = splitCommand;
+		else
+			return -1;
 	
-	else if(strcmp(splitCommand, "HK") == 0) 
+	}else if(strcmp(splitCommand, "HK") == 0) {
 		bufMode = HK;								// HK - Hikikomori Mode 3
 		if(	strcmp(splitCommand, "down") == 0 || \
 			strcmp(splitCommand, "up")== 0)
-			Command = splitCommand
+			Command = splitCommand;
 		else 
 			return -1;
 	
-	else if(strcmp(splitCommand, "HJ") == 0)
+	}else if(strcmp(splitCommand, "HJ") == 0){
 		bufMode = HJ;								// HJ - Hexenjagt Mode 3
 		if(	strcmp(splitCommand, "MagSideOFF") == 0 || \
 			strcmp(splitCommand, "MagMidOFF") == 0 || \
 			strcmp(splitCommand, "MagON") == 0)
-			Command = splitCommand
+			Command = splitCommand;
 		else 
 			return -1;
 	
-	else if(strcmp(splitCommand, "exit") == 0)
-		bufMode = exit;							// HJ - Hexenjagt Mode 3
+	}else if(strcmp(splitCommand, "CUend") == 0){
+		bufMode = CUend;							// HJ - Hexenjagt Mode 3
 	
-	else 
+	}else 
 		return -1;
 
-/*
-	splitCommand=strtok(NULL,";");
-	switch (bufMode) {
-		case 'A' :								// A Analog Mode Mode 1
-			bufMode = 'A';
-			// Channel select
-			splitCommand=strtok(NULL,";");
-			if(splitCommand == NULL)
-				return -1;
-			bufChannel = atoi(splitCommand);
-			if(bufChannel > 1 && bufChannel < 4)
-				return -1;
-			
-			// DC Value select
-			splitCommand=strtok(NULL,";");
-			if(splitCommand == NULL)
-				return -1;
-			bufDutyCycle = atoi(splitCommand);
-			if(bufDutyCycle >= 0 && bufDutyCycle <= 100)
-				return -1;
-			
-			Channel = bufChannel;
-			DutyCycle = bufDutyCycle;
-			break;
-			
-		case 'D' :									// D Digital Mode Mode 2
-			bufMode = 'D';
-			if(strcmp(splitCommand, "nothing") == 0)
-				Command = splitCommand
-			else
-				return -1;
-			break;
-			
-		case 'HK' :									// HK - Hikikomori Mode 3
-			bufMode = 'HK';
-			if(	strcmp(splitCommand, "down") == 0 || \
-				strcmp(splitCommand, "up")== 0)
-				Command = splitCommand
-			else 
-				return -1;
-			break;
-		
-		case 'HJ' :									// HJ - Hexenjagt Mode 3
-			bufMode = 'HJ';
-			if(	strcmp(splitCommand, "MagSideOFF") == 0 || \
-				strcmp(splitCommand, "MagMidOFF") == 0 || \
-				strcmp(splitCommand, "MagON") == 0)
-				Command = splitCommand
-			else 
-				return -1;
-			break;
-
-		case 'exit' :								// exit mode 99
-			bufMode = 'exit';
-			break;
-			
-		case default :
-			bufMode = 'exit';
-			return -1;
-			break;
-*/
 			
 	Mode = bufMode;
 	
