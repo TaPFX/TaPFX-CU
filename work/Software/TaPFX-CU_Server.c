@@ -67,10 +67,25 @@ int main(int argc, char *argv[]){
 		case D:
 			printf("Case D is selected\n");	
 			break;		
-		case HK:
-			printf("Case HK is selected\n");
-			break;
 		case HJ:
+			printf("Case HJ is selected: %s \n",Command);
+			if(strcmp(Command, "MagSideOFF") == 0){
+				setAnalog(1,0);
+				setAnalog(2,0);
+			}else if(strcmp(Command, "MagSideON") == 0){
+				printf("MagSideON\n");
+				setAnalog(1,80);
+				setAnalog(2,80);
+			}else if(strcmp(Command, "MagMidOFF") == 0){
+				setAnalog(3,0);
+			}else if(strcmp(Command, "MagMidON") == 0){
+				setAnalog(3,80);
+			}else if(strcmp(Command, "MagON") == 0){
+				setAnalog(1,0);
+				setAnalog(2,0);
+				setAnalog(3,0);}
+			break;
+		case HK:
 			printf("Case HK is selected\n");
 			break;
 		case CUend:
@@ -140,16 +155,22 @@ signed char parseCommand(char command[BUFSIZE]){
 	}else if(strcmp(splitCommand, "HK") == 0) {
 		bufMode = HK;								// HK - Hikikomori Mode 3
 		if(	strcmp(splitCommand, "down") == 0 || \
-			strcmp(splitCommand, "up")== 0)
+				strcmp(splitCommand, "up")== 0)
 			Command = splitCommand;
 		else 
 			return -1;
 	
 	}else if(strcmp(splitCommand, "HJ") == 0){
+		splitCommand=strtok(NULL,";");
+		if(splitCommand == NULL)
+			return -1;
+	
 		bufMode = HJ;								// HJ - Hexenjagt Mode 3
 		if(	strcmp(splitCommand, "MagSideOFF") == 0 || \
-			strcmp(splitCommand, "MagMidOFF") == 0 || \
-			strcmp(splitCommand, "MagON") == 0)
+				strcmp(splitCommand, "MagMidOFF") == 0  || \
+				strcmp(splitCommand, "MagSideON") == 0  || \
+				strcmp(splitCommand, "MagMidON") == 0   || \
+				strcmp(splitCommand, "MagON") == 0)
 			Command = splitCommand;
 		else 
 			return -1;
